@@ -18,6 +18,18 @@ class Constant {
 
   ///  登录字段
   static const String LOGIN_ACCOUNT = "account";
-  static const String LOGIN_PASSWORD = "password";
+  static const String PASSWORD = "password";
+
+  ///  绑定手机号短信验证
+  static const String LOGIN_PHONE = "bind_phone";
+  static const String LOGIN_SMS_MESSAGE = "sms_message";
+
+  ///  验证用于重置密码的短信验证码
+  static const String MOBILE = "mobile";
+  static const String VERIFY_FORGET_VERIFY_CODE = "code";
+
+  ///  重置密码
+  static const String RESET_NEW_PASSWORD = "reset_new_password";
+  static const String RESET_CHECK_NEW_PASSWORD = "reset_check_new_password";
 
 }

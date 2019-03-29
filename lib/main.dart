@@ -13,11 +13,8 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new TipDialogContainer(
-        duration: const Duration(seconds: 2),
-        child: new MaterialApp(
-          home: new SplashPage(),   // 闪屏页
-        )
+    return new MaterialApp(
+      home: new SplashPage(), // 闪屏页
     );
   }
 }

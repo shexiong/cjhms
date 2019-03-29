@@ -1,15 +1,18 @@
 import 'package:cjhms/common/constant.dart';
 import 'package:cjhms/component/base/bloc_provider.dart';
 import 'package:cjhms/component/login/bloc/bloc_login.dart';
-import 'package:cjhms/component/login/entity/resp_login.dart';
+import 'package:cjhms/component/login/entity/response_login.dart';
+import 'package:cjhms/component/login/ui/router_bind_phone_page.dart';
+import 'package:cjhms/component/login/ui/router_forget_verify_page.dart';
 import 'package:cjhms/resources/res_index.dart';
+import 'package:cjhms/utils/navigator_util.dart';
 import 'package:cjhms/utils/sp_util.dart';
+import 'package:cjhms/utils/toast_util.dart';
 import 'package:cjhms/utils/utils.dart';
+import 'package:cjhms/widget/dialog/loading_dialog.dart';
 import 'package:common_utils/common_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:tip_dialog/tip_dialog.dart';
 
 
 ///
@@ -27,12 +30,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginState extends State<LoginPage> {
   LoginBloc bloc;
+
   ///  编辑栏控制器
   TextEditingController _userPassController = new TextEditingController();
   TextEditingController _userNameController = new TextEditingController();
-
-  /// tip控制器
-  TipDialogController tipController;
 
   ///  显示明文密码
   bool showPassword = false;
@@ -44,7 +45,7 @@ class _LoginState extends State<LoginPage> {
       if (bloc != null) {
         bloc.accountOrPasswordChange({
           Constant.LOGIN_ACCOUNT: _userNameController.text,
-          Constant.LOGIN_PASSWORD: _userPassController.text
+          Constant.PASSWORD: _userPassController.text
         });
       }
     });
@@ -52,7 +53,7 @@ class _LoginState extends State<LoginPage> {
       if (bloc != null) {
         bloc.accountOrPasswordChange({
           Constant.LOGIN_ACCOUNT: _userNameController.text,
-          Constant.LOGIN_PASSWORD: _userPassController.text
+          Constant.PASSWORD: _userPassController.text
         });
       }
     });
@@ -61,7 +62,6 @@ class _LoginState extends State<LoginPage> {
   @override
   void dispose() {
     super.dispose();
-    tipController.dismiss();
     _userNameController.dispose();
     _userPassController.dispose();
   }
@@ -72,34 +72,34 @@ class _LoginState extends State<LoginPage> {
     bloc = BlocProvider.of<LoginBloc>(context);
 
     return new WillPopScope(
-        child: new Scaffold(
-          resizeToAvoidBottomPadding: false,
-          body: new TipDialogConnector(
-            builder: (context, tipControll) {
-              tipController = tipControll;
-
-              return new Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  buildContainerBg,
-                  getAccountOrPwd("账号"),
-                  buildAccount,
-                  getAccountOrPwd("密码"),
-                  buildPassword,
-                  buildLogin(),
-                  buildForget
-                ],
-              );
-            },
-          ),
+      child: new Scaffold(
+        resizeToAvoidBottomPadding: false,
+        body: new Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            buildContainerBg,
+            getAccountOrPwd("账号"),
+            buildAccount,
+            getAccountOrPwd("密码"),
+            buildPassword,
+            buildLogin(),
+            buildForget
+          ],
         ),
-        onWillPop: _requestPop,  ///  包一层WillPopScope用来点返回键退出
+      ),
+      ///  包一层WillPopScope用来点返回键退出
+      onWillPop: _requestPop,
     );
   }
 
   ///  返回键退出
   Future<bool> _requestPop() {
-    SystemNavigator.pop();
+    if(mContext != null){
+      Navigator.pop(mContext);  ///  销毁dialog对话框
+      mContext = null;
+    }else{
+      SystemNavigator.pop();
+    }
     return new Future.value(false);
   }
 
@@ -177,7 +177,8 @@ class _LoginState extends State<LoginPage> {
                   size: Dimens.space_width_20,
                   color: Colors.black26,),
                 onPressed: () {
-                  bloc.passwordVisiableChange(!showPassword);
+                  showPassword = !showPassword;
+                  bloc.passwordVisiableChange(showPassword);
                 }
             ),
           )
@@ -209,7 +210,7 @@ class _LoginState extends State<LoginPage> {
             AsyncSnapshot<Map<String, String>> snapshot) {
           if (ObjectUtil.isEmpty(snapshot.data)) {
             return getFlatButton(
-                {Constant.LOGIN_ACCOUNT: "", Constant.LOGIN_PASSWORD: ""});
+                {Constant.LOGIN_ACCOUNT: "", Constant.PASSWORD: ""});
           }
           return getFlatButton(snapshot.data);
         },
@@ -219,10 +220,9 @@ class _LoginState extends State<LoginPage> {
 
   FlatButton getFlatButton(Map<String, String> data) {
     return new FlatButton(
-
       ///  onPressed为空时，button会置灰
       onPressed: data[Constant.LOGIN_ACCOUNT].isEmpty ? null : () {
-        if (data[Constant.LOGIN_PASSWORD].isNotEmpty) {
+        if (data[Constant.PASSWORD].isNotEmpty) {
           login();
         } else {
           //  下一步
@@ -234,7 +234,7 @@ class _LoginState extends State<LoginPage> {
       shape: new StadiumBorder(),
       child: new Center(
         child: data[Constant.LOGIN_ACCOUNT].isNotEmpty ? (data[Constant
-            .LOGIN_PASSWORD].isNotEmpty
+            .PASSWORD].isNotEmpty
             ? new Text(
           "登录", style: TextStyles.buttonTextWhite,)
             :
@@ -244,6 +244,7 @@ class _LoginState extends State<LoginPage> {
     );
   }
 
+  ///  忘记密码，跳转去忘记密码页面
   Container get buildForget {
     return new Container(
       alignment: Alignment.center,
@@ -251,7 +252,12 @@ class _LoginState extends State<LoginPage> {
       child: new SizedBox(
         height: Dimens.ratio_height_4,
         child: new FlatButton(
-          onPressed: () {},
+          onPressed: () {
+            NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(
+              child: ForgetPasswordVerifyPage(),
+              bloc: new LoginBloc(),
+            ));
+          },
           child: new Text("忘记密码？", style: TextStyle(
               color: ColorT.app_common, fontSize: Dimens.font_space_15),),
         ),
@@ -260,29 +266,36 @@ class _LoginState extends State<LoginPage> {
   }
 
 
+  BuildContext mContext;  ///  拿到dialog的context，用于销毁
   Future login() async {
-    tipController.show(
-        tipDialog: new TipDialog(type: TipDialogType.LOADING, tip: "正在登录"),
-        isAutoDismiss: false);
+    showDialog<Null>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          mContext = context;
+          return new LoadingDialog(msg: "正在登录...",);
+        }
+    );
     LoginResponse loginToYun = await bloc.loginToYun(
         _userNameController.text, _userPassController.text);
-    tipController.dismiss();
-    if (loginToYun == null || loginToYun.token.isEmpty) {
-      Fluttertoast.showToast(
-          msg: "    账号或密码错误    ",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIos: 1,
-          backgroundColor: Color(0xAA111111),
-          textColor: Color(0xFFFFFFFF)
-      );
-    } else {
-      ///  本地存储数据
-      SpUtil.putString(Constant.SP_USER_ACCOUNT, _userNameController.text);
-      SpUtil.putString(Constant.SP_USER_PASSWORD, _userPassController.text);
+    if(mContext != null){
+      Navigator.pop(mContext);  ///  销毁dialog对话框
+      mContext = null;
+    }
+
+//    if (loginToYun.token.isNotEmpty) {
+//      ///  本地存储数据
+//      SpUtil.putString(Constant.SP_USER_ACCOUNT, _userNameController.text);
+//      SpUtil.putString(Constant.SP_USER_PASSWORD, _userPassController.text);
 
       ///  跳转下一页面
-    }
+      NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(
+          child: BindPhonePage(),
+          bloc: new LoginBloc(),
+      ));
+//    } else {
+//      ///  提示账号密码错误
+//      ToastUtil.showToast("账号或密码错误");
+//    }
   }
-
 }

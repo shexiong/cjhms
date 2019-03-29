@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'resp_login.g.dart';
+part 'response_login.g.dart';
 
 ///   登录response
 @JsonSerializable()

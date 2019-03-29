@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cjhms/component/base/bloc_provider.dart';
-import 'package:cjhms/component/login/entity/resp_login.dart';
+import 'package:cjhms/component/login/entity/response_login.dart';
 import 'package:cjhms/component/login/repository/repository_login.dart';
+import 'package:cjhms/utils/utils.dart';
 import 'package:rxdart/rxdart.dart';
 
 ///
@@ -11,20 +14,37 @@ import 'package:rxdart/rxdart.dart';
 ///
 class LoginBloc implements BlocBase{
 
-  ///  rxdart的类，用于控制输入输出流
+  ///  rxdart的BehaviorSubject，缓存最新一次事件的广播流控制器
+  ///------------------------------   login    ------------------------------- ///
   BehaviorSubject<Map<String, String>> accountOrPasswordSubject = BehaviorSubject<Map<String, String>>();
   Stream<Map<String, String>> get accountOrPasswordStream => accountOrPasswordSubject.stream;
-
   BehaviorSubject<bool> passwordVisiableSubject = BehaviorSubject<bool>();
   Stream<bool> get passwordVisiableStream => passwordVisiableSubject.stream;
 
+  ///------------------------------   bind phone    ------------------------------- ///
+  Timer _timer;
+  BehaviorSubject<Map<String, String>> phoneAndSmsSubject = BehaviorSubject<Map<String, String>>();
+  Stream<Map<String, String>> get phoneAndSmsStream => phoneAndSmsSubject.stream;
+  BehaviorSubject<String> bindPhoneVerifyCodeSubject = BehaviorSubject<String>();
+  Stream<String> get bindPhoneVerifyCodeStream => bindPhoneVerifyCodeSubject.stream;
+
+  ///------------------------------   forget password    ------------------------------- ///
+  BehaviorSubject<String> forgetPasswordVerifyCodeSubject = BehaviorSubject<String>();
+  Stream<String> get forgetPasswordVerifyCodeStream => forgetPasswordVerifyCodeSubject.stream;
+  BehaviorSubject<String> resetPasswordSubject = BehaviorSubject<String>();
+  Stream<String> get resetPasswordStream => resetPasswordSubject.stream;
 
   LoginRepository repository = new LoginRepository();
 
   @override
   void dispose() {
+    _timer.cancel();
     accountOrPasswordSubject.close();
     passwordVisiableSubject.close();
+    phoneAndSmsSubject.close();
+    bindPhoneVerifyCodeSubject.close();
+    forgetPasswordVerifyCodeSubject.close();
+    resetPasswordSubject.close();
   }
 
   @override
@@ -49,6 +69,71 @@ class LoginBloc implements BlocBase{
 
   void passwordVisiableChange(bool isVisiable){
     passwordVisiableSubject.sink.add(isVisiable);
+  }
+
+  void phoneAndSmsChange(Map<String, String> map){
+    phoneAndSmsSubject.sink.add(map);
+  }
+
+  ///   绑定手机时去获取验证码，并开始倒计时
+  void bindPhoneVerifyCode(){
+    _startTimer(0);
+
+  }
+
+  ///   重置密码时获取验证码，并开始倒计时
+  Future<bool> sendForgetVerifyCode(String phone) async{
+    _startTimer(1);
+    return await repository.sendForgetVerifyCode(phone);
+  }
+
+  ///   重置密码时去验证验证码
+  Future<bool> verifyForgetVerifyCode(String phone, String verifyCode) async{
+    Utils.mobile = phone;
+    Utils.verifySmsCode = verifyCode;
+    return await repository.verifyForgetVerifyCode(phone, verifyCode);
+  }
+
+  ///   重置密码
+  Future<bool> resetPassword(String password) async{
+    return await repository.resetForgetPassword(Utils.mobile, password, Utils.verifySmsCode);
+  }
+
+
+
+
+
+
+
+  ///   定时器
+  _startTimer(int type){
+    int seconds = 60;
+    String verifyStr;
+    _timer = new Timer.periodic(new Duration(seconds: 1), (timer) {
+      if (seconds == 0) {
+        _cancelTimer();
+        return;
+      }
+      seconds--;
+      verifyStr = '重新发送($seconds)';
+      if (seconds == 0) {
+        verifyStr = '获取验证码';
+      }
+      switch(type){
+        case 0:
+          bindPhoneVerifyCodeSubject.sink.add(verifyStr);
+          break;
+        case 1:
+          forgetPasswordVerifyCodeSubject.sink.add(verifyStr);
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  _cancelTimer() {
+    _timer?.cancel();
   }
 
 }
