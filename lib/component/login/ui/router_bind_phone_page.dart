@@ -119,7 +119,7 @@ class _BindPhoneState extends State<BindPhonePage> {
           String verify = "获取验证码";
           bool canVerify = true;
           if (ObjectUtil.isNotEmpty(snapshot.data)) {
-            canVerify = verify.compareTo(snapshot.data) == 0; /// 回到初始状态，可以点击去重新发送
+            canVerify = verify.compareTo(snapshot.data) == 0; // 回到初始状态，可以点击去重新发送
             verify = snapshot.data;
           }
           return new InkWell(
@@ -189,7 +189,7 @@ class _BindPhoneState extends State<BindPhonePage> {
 
   FlatButton getFlatButton(Map<String, String> data) {
     return new FlatButton(
-      ///  onPressed为空时，button会置灰
+      //  onPressed为空时，button会置灰
       onPressed: (data[Constant.LOGIN_PHONE].isEmpty || data[Constant.LOGIN_SMS_MESSAGE].isEmpty)
           ? null : () {
 

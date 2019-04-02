@@ -7,7 +7,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 class ToastUtil {
   static OverlayEntry _overlayEntry; //toast靠它加到屏幕上
   static bool _showing = false; //toast是否正在showing
-  static DateTime _startedTime; //开启一个新toast的当前时间，用于对比是否已经展示了足够时间
   static String _msg;
   static int _unicode;
   static Color _iconBgColor, _textColor;
@@ -28,12 +27,12 @@ class ToastUtil {
   ///  自定义带文字图片的toast
   static void toast(BuildContext context, String msg, int unicode,
       Color iconBgColor, Color textColor) async {
-    assert(msg != null);
+    assert(msg != null); assert(unicode!=null);assert(iconBgColor!=null);assert(textColor!=null);
     _msg = msg;
     _unicode = unicode;
     _iconBgColor = iconBgColor;
     _textColor = textColor;
-    _startedTime = DateTime.now();
+    DateTime startedTime = DateTime.now(); //开启一个新toast的当前时间，用于对比是否已经展示了足够时间
     //获取OverlayState
     OverlayState overlayState = Overlay.of(context);
     _showing = true;
@@ -64,7 +63,7 @@ class ToastUtil {
     }
     await Future.delayed(Duration(milliseconds: 2000)); //等待两秒
     //2秒后必须消失
-    if (DateTime.now().difference(_startedTime).inMilliseconds >= 2000) {
+    if (DateTime.now().difference(startedTime).inMilliseconds >= 2000) {
       _showing = false;
       _overlayEntry.remove();
       _overlayEntry = null;

@@ -141,7 +141,7 @@ class _ForgetPasswordVerifyState extends State<ForgetPasswordVerifyPage> {
           String verify = "获取验证码";
           bool canVerify = true;
           if (ObjectUtil.isNotEmpty(snapshot.data)) {
-            canVerify = verify.compareTo(snapshot.data) == 0; /// 回到初始状态，可以点击去重新发送
+            canVerify = verify.compareTo(snapshot.data) == 0; // 回到初始状态，可以点击去重新发送
             verify = snapshot.data;
           }
           return new InkWell(
@@ -223,7 +223,7 @@ class _ForgetPasswordVerifyState extends State<ForgetPasswordVerifyPage> {
 
   FlatButton getFlatButton(Map<String, String> data) {
     return new FlatButton(
-      ///  onPressed为空时，button会置灰
+      //  onPressed为空时，button会置灰
       onPressed: (data[Constant.LOGIN_PHONE].isEmpty || data[Constant.LOGIN_SMS_MESSAGE].isEmpty)
           ? null : () {
         verifyPhoneAndCode();
@@ -251,11 +251,11 @@ class _ForgetPasswordVerifyState extends State<ForgetPasswordVerifyPage> {
       );
       bool isVerify = await bloc.verifyForgetVerifyCode(_phoneController.text, _smsController.text);
       if(mContext != null){
-        Navigator.pop(mContext);  ///  销毁dialog对话框
+        Navigator.pop(mContext);  //  销毁dialog对话框
         mContext = null;
       }
 //      if(isVerify){
-        ///  验证成功，去重置密码
+        //  验证成功，去重置密码
         NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(
           child: ForgetPasswordResetPage(),
           bloc: new LoginBloc(),

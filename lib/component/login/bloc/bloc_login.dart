@@ -1,9 +1,10 @@
-import 'dart:async';
 
+import 'dart:async';
 import 'package:cjhms/component/base/bloc_provider.dart';
-import 'package:cjhms/component/login/entity/response_login.dart';
+import 'package:cjhms/component/login/entity/current_user_detail.dart';
+import 'package:cjhms/component/login/entity/user_token_info.dart';
 import 'package:cjhms/component/login/repository/repository_login.dart';
-import 'package:cjhms/utils/utils.dart';
+import 'package:cjhms/utils/global.dart';
 import 'package:rxdart/rxdart.dart';
 
 ///
@@ -47,19 +48,9 @@ class LoginBloc implements BlocBase{
     resetPasswordSubject.close();
   }
 
-  @override
-  Future onLoadMore() {
-    return null;
-  }
-
-  @override
-  Future onRefresh() {
-    return null;
-  }
-
   ///  异步登录
   Future loginToYun(String account, String password) async{
-    LoginResponse loginResponse = await repository.loginToYun(account, password);
+    bool loginResponse = await repository.loginToYun(account, password);
     return loginResponse;
   }
 
@@ -89,16 +80,25 @@ class LoginBloc implements BlocBase{
 
   ///   重置密码时去验证验证码
   Future<bool> verifyForgetVerifyCode(String phone, String verifyCode) async{
-    Utils.mobile = phone;
-    Utils.verifySmsCode = verifyCode;
+    Global.mobile = phone;
+    Global.verifySmsCode = verifyCode;
     return await repository.verifyForgetVerifyCode(phone, verifyCode);
   }
 
   ///   重置密码
   Future<bool> resetPassword(String password) async{
-    return await repository.resetForgetPassword(Utils.mobile, password, Utils.verifySmsCode);
+    return await repository.resetForgetPassword(Global.mobile, password, Global.verifySmsCode);
   }
 
+  ///  得到当前用户信息
+  Future<CurrentUserDetail> getCurrentUser() async{
+    return await repository.getCurrentUser();
+  }
+
+  Future refreshToken() async{
+    bool refresh = await repository.refreshToken();
+    return refresh;
+  }
 
 
 

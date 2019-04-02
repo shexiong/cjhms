@@ -1,7 +1,7 @@
 
 import 'package:cjhms/api/api.dart';
 import 'package:cjhms/common/constant.dart';
-import 'package:cjhms/component/login/entity/response_login.dart';
+import 'package:cjhms/component/login/entity/current_user_detail.dart';
 import 'package:cjhms/utils/dio_util.dart';
 
 ///
@@ -13,17 +13,16 @@ import 'package:cjhms/utils/dio_util.dart';
 class LoginRepository {
 
   ///  登录云平台
-  Future<LoginResponse> loginToYun(String account, String password) async{
+  Future<bool> loginToYun(String account, String password) async{
     BaseResp<Map<String, dynamic>> baseResp = await DioUtil.getInstance().request<Map<String, dynamic>>(
         Method.post, Api.USER_LOGIN,
         data: {Constant.LOGIN_ACCOUNT: account, Constant.PASSWORD: password},
-        options: DioUtil.changeBaseUrlOptions(true));
+        options: DioUtil.changeBaseUrlOptions(false));
 
     if (baseResp.code == Constant.STATUS_SUCCESS && baseResp.data.isNotEmpty) {
-      ///  将得到的map反序列化为对象
-      return LoginResponse.fromJson(baseResp.data);
+      return true;
     }
-    return new LoginResponse('',0,'');
+    return false;
   }
 
 
@@ -67,9 +66,29 @@ class LoginRepository {
     return false;
   }
 
+  ///  得到当前用户信息
+  Future<CurrentUserDetail> getCurrentUser() async{
+    BaseResp<Map<String, dynamic>> baseResp = await DioUtil.getInstance().request<Map<String, dynamic>>(
+        Method.get, Api.CURRENT_USER_DETAIL,
+        options: DioUtil.changeBaseUrlOptions(true));
 
+    if (baseResp.code == Constant.STATUS_SUCCESS && baseResp.data.isNotEmpty) {
+      return CurrentUserDetail.fromJson(baseResp.data);
+    }
+    return CurrentUserDetail.fromJson({});
+  }
 
+  Future<bool> refreshToken() async{
+    BaseResp<Map<String, dynamic>> baseResp = await DioUtil.getInstance().request<Map<String, dynamic>>(
+        Method.post, Api.REFRESH_TOKEN,
+        options: DioUtil.changeBaseUrlOptions(true));
 
+    if (baseResp.code == Constant.STATUS_SUCCESS && baseResp.data.isNotEmpty) {
+      //  将得到的map反序列化为对象
+      return true;
+    }
+    return false;
+  }
 
 
 

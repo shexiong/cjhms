@@ -1,9 +1,11 @@
 import 'package:cjhms/common/constant.dart';
 import 'package:cjhms/component/base/bloc_provider.dart';
 import 'package:cjhms/component/login/bloc/bloc_login.dart';
+import 'package:cjhms/component/login/entity/current_user_detail.dart';
 import 'package:cjhms/component/login/ui/router_login_page.dart';
 import 'package:cjhms/component/router_home_page.dart';
 import 'package:cjhms/utils/dio_util.dart';
+import 'package:cjhms/utils/global.dart';
 import 'package:cjhms/utils/navigator_util.dart';
 import 'package:cjhms/utils/screen_util.dart';
 import 'package:cjhms/utils/sp_util.dart';
@@ -25,46 +27,50 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  ///  是否已登录过
+  ///  是否登录过
   bool loggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    _init();
-    _initAsync();
+    _initDio();
     getUserInfo();
     var _duration = new Duration(seconds: 3);
-    ///  延时3秒
+    //  延时3秒
     new Future.delayed(_duration, go2NextPage);
   }
 
   ///  单例dio初始化
-  void _init() {
-    DioUtil.openDebug();   ///  开启debug模式
+  void _initDio() {
+    DioUtil.openDebug();   //  开启debug模式
     Options options = DioUtil.getDefOptions();
     options.baseUrl = Constant.BASE_USER_URL;
     DioUtil.getInstance().setConfig(new HttpConfig(options: options));
   }
 
-  void _initAsync() async {
-    await SpUtil.getInstance(); ///  SP初始化
-  }
-
-  ///  去拿本地存储的用户信息
+  ///  去拿本地存储的token
   Future getUserInfo() async {
-    String account = SpUtil.getString(Constant.SP_USER_ACCOUNT);
-    String password = SpUtil.getString(Constant.SP_USER_PASSWORD);
-    if (null != account && account.length > 0
-        && null != password && password.length > 0) {
-      //  去自动登录
+    await SpUtil.getInstance(); //  SP 初始化
+    bool isLogin = SpUtil.getBool(Constant.IS_LOGIN);
+    if (isLogin) {
       loggedIn = true;
+      Global.needAuth = true;
+      // bloc异步请求拿当前用户
+      LoginBloc bloc = BlocProvider.of<LoginBloc>(context);
+      if(bloc != null){
+        await bloc.refreshToken(); // 刷新token
+        CurrentUserDetail userDetail =  await bloc.getCurrentUser();
+        if(userDetail != null){
+          Global.userDetail = userDetail;
+        }
+      }
     }
   }
 
   void go2NextPage() {
-    //  在这里判断去主界面还是登录页面
+    //  在这里判断页面去向
     if (loggedIn) {
+      //  再判断
       NavigatorUtil.pushPage(context, HomePage());
     } else {
       NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(child: LoginPage(),bloc: new LoginBloc(),));

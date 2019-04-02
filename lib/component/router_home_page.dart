@@ -3,8 +3,8 @@ import 'package:cjhms/component/error/ui/router_error_page.dart';
 import 'package:cjhms/component/mine/ui/router_mine_page.dart';
 import 'package:cjhms/component/mission/ui/router_mission_page.dart';
 import 'package:cjhms/component/record/ui/router_record_page.dart';
-import 'package:cjhms/widget/bottom_app_bar/bottom_tab_bar.dart';
 import 'package:cjhms/resources/res_index.dart';
+import 'package:cjhms/widget/bottombar/bottom_tab_bar.dart';
 import 'package:flutter/material.dart';
 
 ///

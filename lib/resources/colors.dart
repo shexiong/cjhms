@@ -5,6 +5,7 @@ class ColorT {
   static const Color app_common = Color(0xff08c299);
 
   static const Color transparent_80 = Color(0x80000000);
+  static const Color transparent_gray_aa = Color(0xaae9e9e9);
 
   static const Color text_dark = Color(0xFF333333);
   static const Color text_normal = Color(0xFF666666);

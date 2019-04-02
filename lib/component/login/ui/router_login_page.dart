@@ -1,10 +1,10 @@
 import 'package:cjhms/common/constant.dart';
 import 'package:cjhms/component/base/bloc_provider.dart';
 import 'package:cjhms/component/login/bloc/bloc_login.dart';
-import 'package:cjhms/component/login/entity/response_login.dart';
-import 'package:cjhms/component/login/ui/router_bind_phone_page.dart';
+import 'package:cjhms/component/login/entity/user_token_info.dart';
 import 'package:cjhms/component/login/ui/router_forget_verify_page.dart';
 import 'package:cjhms/resources/res_index.dart';
+import 'package:cjhms/utils/global.dart';
 import 'package:cjhms/utils/navigator_util.dart';
 import 'package:cjhms/utils/sp_util.dart';
 import 'package:cjhms/utils/toast_util.dart';
@@ -41,6 +41,7 @@ class _LoginState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    //  监听编辑框文字变化
     _userNameController.addListener(() {
       if (bloc != null) {
         bloc.accountOrPasswordChange({
@@ -87,7 +88,7 @@ class _LoginState extends State<LoginPage> {
           ],
         ),
       ),
-      ///  包一层WillPopScope用来点返回键退出
+      //  包一层WillPopScope用来点返回键退出
       onWillPop: _requestPop,
     );
   }
@@ -95,7 +96,7 @@ class _LoginState extends State<LoginPage> {
   ///  返回键退出
   Future<bool> _requestPop() {
     if(mContext != null){
-      Navigator.pop(mContext);  ///  销毁dialog对话框
+      Navigator.pop(mContext);  //  销毁dialog对话框
       mContext = null;
     }else{
       SystemNavigator.pop();
@@ -220,7 +221,7 @@ class _LoginState extends State<LoginPage> {
 
   FlatButton getFlatButton(Map<String, String> data) {
     return new FlatButton(
-      ///  onPressed为空时，button会置灰
+      //  onPressed为空时，button会置灰
       onPressed: data[Constant.LOGIN_ACCOUNT].isEmpty ? null : () {
         if (data[Constant.PASSWORD].isNotEmpty) {
           login();
@@ -276,26 +277,32 @@ class _LoginState extends State<LoginPage> {
           return new LoadingDialog(msg: "正在登录...",);
         }
     );
-    LoginResponse loginToYun = await bloc.loginToYun(
+    bool loginToYun = await bloc.loginToYun(
         _userNameController.text, _userPassController.text);
     if(mContext != null){
-      Navigator.pop(mContext);  ///  销毁dialog对话框
+      Navigator.pop(mContext);  // 销毁dialog对话框
       mContext = null;
     }
 
-//    if (loginToYun.token.isNotEmpty) {
-//      ///  本地存储数据
-//      SpUtil.putString(Constant.SP_USER_ACCOUNT, _userNameController.text);
-//      SpUtil.putString(Constant.SP_USER_PASSWORD, _userPassController.text);
+    if (loginToYun) {
+      Global.needAuth = true;
+      //  本地存储（已经登录）
+      SpUtil.putBool(Constant.IS_LOGIN, true);
 
-      ///  跳转下一页面
-      NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(
-          child: BindPhonePage(),
-          bloc: new LoginBloc(),
-      ));
-//    } else {
-//      ///  提示账号密码错误
-//      ToastUtil.showToast("账号或密码错误");
-//    }
+      //  跳转下一页面
+//      NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(
+//          child: BindPhonePage(),
+//          bloc: new LoginBloc(),
+//      ));
+
+    } else {
+      //  提示账号密码错误
+      ToastUtil.showToast("账号或密码错误");
+    }
   }
+
+
+
+
+
 }

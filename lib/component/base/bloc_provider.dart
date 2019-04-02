@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 
 ///  bloc基类
 abstract class BlocBase {
-  Future onRefresh();
-
-  Future onLoadMore();
-
   void dispose();
 }
 

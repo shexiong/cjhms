@@ -1,16 +1,21 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cjhms/api/api.dart';
 import 'package:cjhms/common/constant.dart';
+import 'package:cjhms/utils/cookies_util.dart';
+import 'package:cjhms/utils/global.dart';
 import 'package:dio/dio.dart';
 
 /// <BaseResp<T> 返回 status code msg data.
 class BaseResp<T> {
   int code;
+  int total;
   String message;
   T data;
 
-  BaseResp(this.code, this.message, this.data);
+  BaseResp(this.code, this.message, this.data, this.total);
 
   @override
   String toString() {
@@ -18,6 +23,7 @@ class BaseResp<T> {
     sb.write(",\"code\":$code");
     sb.write(",\"msg\":\"$message\"");
     sb.write(",\"data\":\"$data\"");
+    sb.write(",\"total\":\"$total\"");
     sb.write('}');
     return sb.toString();
   }
@@ -43,10 +49,10 @@ class HttpConfig {
     this.options,
   });
 
-  /// BaseResp [int code]字段 key, 默认：errorCode.
+  /// BaseResp [int code]字段 key, 默认：code.
   String code;
 
-  /// BaseResp [String msg]字段 key, 默认：errorMsg.
+  /// BaseResp [String msg]字段 key, 默认：message.
   String message;
 
   /// BaseResp [T data]字段 key, 默认：data.
@@ -72,6 +78,9 @@ class DioUtil {
 
   /// BaseResp [T data]字段 key, 默认：data.
   String _dataKey = "data";
+
+  /// BaseResp [int total]字段 key, 默认：total.
+  String _totalKey = "total";
 
   /// Options.
   Options _options = getDefOptions();
@@ -101,14 +110,27 @@ class DioUtil {
     if (_dio != null) {
       _dio.options = _options;
     }
+
+    //  配置拦截器
+    _dio.interceptor.request.onSend = (Options options) {
+      bool needAuth = options.extra[Constant.NEED_TOKEN_FIELD];
+      //  需要auth认证
+      if (needAuth) {
+        return CookiesUtil.getCookiesForRequest(options);
+      }else{
+        return options;
+      }
+    };
   }
 
-  /// Make http request with options.
-  /// [method] The request method.
-  /// [path] The url path.
-  /// [data] The request data
-  /// [options] The request options.
-  /// <BaseResp<T> 返回 status code msg data .
+
+
+  /// 网络请求
+  /// [method]  请求方法
+  /// [path]  请求url
+  /// [data]  携带数据
+  /// [options]  请求options配置
+  /// <BaseResp<T> 返回值 .
   Future<BaseResp<T>> request<T>(String method, String path,
       {data, Options options, CancelToken cancelToken}) async {
     Response response = await _dio.request(path,
@@ -117,15 +139,22 @@ class DioUtil {
         cancelToken: cancelToken);
     _printHttpLog(response);
     int _code;
+    int _total;
     String _msg;
     T _data;
     if (response.statusCode == HttpStatus.ok ||
         response.statusCode == HttpStatus.created) {
+      if(path.compareTo(Api.USER_LOGIN) == 0 || path.compareTo(Api.REFRESH_TOKEN) == 0){
+        //  如果是登录，直接设置cookies
+        //  如果是刷新token，直接设置cookies
+        CookiesUtil.setCookies(response);
+      }
       try {
         if (response.data is Map) {
           _code = (response.data[_codeKey] is String)
               ? int.tryParse(response.data[_codeKey])
               : response.data[_codeKey];
+          _total = response.data[_totalKey];
           _msg = response.data[_msgKey];
           _data = response.data[_dataKey];
         } else {
@@ -133,10 +162,13 @@ class DioUtil {
           _code = (_dataMap[_codeKey] is String)
               ? int.tryParse(_dataMap[_codeKey])
               : _dataMap[_codeKey];
+          _total = (_dataMap[_totalKey] is String)
+              ? int.tryParse(_dataMap[_totalKey])
+              : _dataMap[_totalKey];
           _msg = _dataMap[_msgKey];
           _data = _dataMap[_dataKey];
         }
-        return new BaseResp(_code, _msg, _data);
+        return new BaseResp(_code, _msg, _data, _total);
       } catch (e) {
         return new Future.error(new DioError(
           response: response,
@@ -152,24 +184,6 @@ class DioUtil {
     ));
   }
 
-
-  /// Download the file and save it in local. The default http method is "GET",you can custom it by [Options.method].
-  /// [urlPath]: The file url.
-  /// [savePath]: The path to save the downloading file later.
-  /// [onProgress]: The callback to listen downloading progress.please refer to [OnDownloadProgress].
-  Future<Response> download(String urlPath,
-      savePath, {
-        OnDownloadProgress onProgress,
-        CancelToken cancelToken,
-        data,
-        Options options,
-      }) {
-    return _dio.download(urlPath, savePath,
-        onProgress: onProgress,
-        cancelToken: cancelToken,
-        data: data,
-        options: options);
-  }
 
   /// decode response data.
   Map<String, dynamic> _decodeData(Response response) {
@@ -261,10 +275,11 @@ class DioUtil {
     return options;
   }
 
-  ///  用于baseurl切换
+  ///  用于baseurl切换， 以及判断是否需要携带token
   static Options changeBaseUrlOptions(bool isYun) {
     Options options = new Options();
     options.baseUrl = isYun ? Constant.BASE_USER_URL : Constant.BASE_DATA_URL;
+    options.extra.addAll({Constant.NEED_TOKEN_FIELD: Global.needAuth});
     return options;
   }
 }

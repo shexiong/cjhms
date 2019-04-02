@@ -169,7 +169,7 @@ class _ForgetPasswordResetState extends State<ForgetPasswordResetPage> {
 
   FlatButton getFlatButton(Map<String, String> data) {
     return new FlatButton(
-      ///  onPressed为空时，button会置灰
+      //  onPressed为空时，button会置灰
       onPressed: (data[Constant.RESET_NEW_PASSWORD].isEmpty || data[Constant.RESET_CHECK_NEW_PASSWORD].isEmpty)
           ? null : () {
         resetPassword();
@@ -197,11 +197,11 @@ class _ForgetPasswordResetState extends State<ForgetPasswordResetPage> {
       );
       bool reset = await bloc.resetPassword(_newPasswordController.text);
       if(mContext != null){
-        Navigator.pop(mContext);  ///  销毁dialog对话框
+        Navigator.pop(mContext);  //  销毁dialog对话框
         mContext = null;
       }
 //      if(reset){
-        ///  重置密码成功
+        //  重置密码成功
         ToastUtil.toast(context, "修改成功", 0xe6ba, ColorT.app_common, Colors.white);
 //      }else{
 //        ToastUtil.showToast("重置密码失败");

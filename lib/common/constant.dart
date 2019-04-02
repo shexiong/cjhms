@@ -9,12 +9,12 @@ class Constant {
 
   static const String BASE_USER_URL = "https://dev-cjyun-api.ecaicn.com/";   ///  登录base
   static const String BASE_DATA_URL = "https://dev-cjhms-api.ecaicn.com/";   ///  课业数据base
+  static const String NEED_TOKEN_FIELD = "need_token";
   static const int STATUS_SUCCESS = 0;
   static const String IconFontFamily = "appIconFonts";
 
-  ///  SP存储的key
-  static const String SP_USER_ACCOUNT = "user_account";
-  static const String SP_USER_PASSWORD = "user_password";
+  ///  SP存储的key(是否已登录)
+  static const String IS_LOGIN = "is_login";
 
   ///  登录字段
   static const String LOGIN_ACCOUNT = "account";
