@@ -95,10 +95,10 @@ class _LoginState extends State<LoginPage> {
 
   ///  返回键退出
   Future<bool> _requestPop() {
-    if(mContext != null){
-      Navigator.pop(mContext);  //  销毁dialog对话框
+    if (mContext != null) {
+      Navigator.pop(mContext); //  销毁dialog对话框
       mContext = null;
-    }else{
+    } else {
       SystemNavigator.pop();
     }
     return new Future.value(false);
@@ -267,8 +267,32 @@ class _LoginState extends State<LoginPage> {
   }
 
 
-  BuildContext mContext;  ///  拿到dialog的context，用于销毁
   Future login() async {
+    _showDialog();
+
+    bool loginToYun = await bloc.loginToYun(
+        _userNameController.text, _userPassController.text);
+    if (mContext != null) {
+      Navigator.pop(mContext); // 销毁dialog对话框
+      mContext = null;
+    }
+    if (loginToYun) {
+      Global.needAuth = true;
+      //  本地存储（已经登录）
+      SpUtil.putBool(Constant.IS_LOGIN, true);
+      //  跳转下一页面
+//      NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(
+//          child: BindPhonePage(),
+//          bloc: new LoginBloc(),
+//      ));
+    } else {
+      //  提示账号密码错误
+      ToastUtil.showToast("账号或密码错误");
+    }
+  }
+
+  BuildContext mContext; //  拿到dialog的context，用于销毁
+  _showDialog() {
     showDialog<Null>(
         context: context,
         barrierDismissible: true,
@@ -277,32 +301,7 @@ class _LoginState extends State<LoginPage> {
           return new LoadingDialog(msg: "正在登录...",);
         }
     );
-    bool loginToYun = await bloc.loginToYun(
-        _userNameController.text, _userPassController.text);
-    if(mContext != null){
-      Navigator.pop(mContext);  // 销毁dialog对话框
-      mContext = null;
-    }
-
-    if (loginToYun) {
-      Global.needAuth = true;
-      //  本地存储（已经登录）
-      SpUtil.putBool(Constant.IS_LOGIN, true);
-
-      //  跳转下一页面
-//      NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(
-//          child: BindPhonePage(),
-//          bloc: new LoginBloc(),
-//      ));
-
-    } else {
-      //  提示账号密码错误
-      ToastUtil.showToast("账号或密码错误");
-    }
   }
-
-
-
 
 
 }

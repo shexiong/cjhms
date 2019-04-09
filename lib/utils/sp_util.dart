@@ -30,7 +30,7 @@ class SpUtil {
   }
 
   static String getString(String key) {
-    if (_prefs == null) return null;
+    if (_prefs == null) return "";
     return _prefs.getString(key);
   }
 
@@ -40,8 +40,12 @@ class SpUtil {
   }
 
   static bool getBool(String key) {
-    if (_prefs == null) return null;
-    return _prefs.getBool(key);
+    if (_prefs == null) return false;
+    bool value = _prefs.getBool(key);
+    if(value != null){
+      return value;
+    }
+    return false;
   }
 
   static Future<bool> putBool(String key, bool value) {
@@ -50,7 +54,7 @@ class SpUtil {
   }
 
   static int getInt(String key) {
-    if (_prefs == null) return null;
+    if (_prefs == null) return 0;
     return _prefs.getInt(key);
   }
 
@@ -60,7 +64,7 @@ class SpUtil {
   }
 
   static double getDouble(String key) {
-    if (_prefs == null) return null;
+    if (_prefs == null) return 0;
     return _prefs.getDouble(key);
   }
 

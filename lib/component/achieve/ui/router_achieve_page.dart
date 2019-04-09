@@ -1,10 +1,12 @@
 import 'package:cjhms/common/constant.dart';
 import 'package:cjhms/component/achieve/adapter/adapter_achieve.dart';
+import 'package:cjhms/component/achieve/bloc/bloc_achieve.dart';
+import 'package:cjhms/component/achieve/entity/student_game_report.dart';
+import 'package:cjhms/component/base/bloc_provider.dart';
 import 'package:cjhms/resources/res_index.dart';
-import 'package:cjhms/utils/screen_util.dart';
 import 'package:cjhms/utils/utils.dart';
+import 'package:cjhms/widget/refresh/refresh_scaffold.dart';
 import 'package:cjhms/widget/widget_app_bar.dart';
-import 'package:common_utils/common_utils.dart';
 import 'package:flutter/material.dart';
 import "package:pull_to_refresh/pull_to_refresh.dart";
 
@@ -20,14 +22,24 @@ class AchievePage extends StatefulWidget {
 }
 
 class _AchieveState extends State<AchievePage> {
+  AchieveBloc bloc;
+  RefreshController _controller = new RefreshController();
 
-  @override
-  void initState() {
-    super.initState();
+  ///  初始化获取数据
+  void _initData() async {
+    await bloc.getAchieveReportData();
   }
 
   @override
   Widget build(BuildContext context) {
+    //  拿到bloc
+    bloc = BlocProvider.of<AchieveBloc>(context);
+    //  上下拉刷新控件状态监听改变
+    bloc.homeStream.listen((status) {
+      _controller.sendBack(true, status); //  设置下拉刷新关闭
+    });
+    new Future.delayed(new Duration(milliseconds: 500), _initData);
+
     return new Scaffold(
       body: new Container(
         decoration: new BoxDecoration(
@@ -36,33 +48,13 @@ class _AchieveState extends State<AchievePage> {
               fit: BoxFit.fill,
             )
         ),
-        child: buildStack(context),
-      ),
-    );
-  }
-
-  Stack buildStack(BuildContext context) {
-    return new Stack(
-      children: <Widget>[
-        buildAppBar(context),
-        new Container(
-          margin: EdgeInsets.only(top: Dimens.ratio_width_16),
-          child: new StreamBuilder(
-              builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
-                if (ObjectUtil.isEmpty(snapshot.data)) {
-                }
-                return new SmartRefresher(
-                  child: new ListView.builder(
-                    reverse: true,
-                    itemExtent: Dimens.ratio_height_8,
-                    itemCount: 24,
-                    itemBuilder: (context, index) => new AchieveItem(),
-                  ),
-                );
-              }
-          ),
+        child: new Stack(
+          children: <Widget>[
+            buildAppBar(context),
+            buildContainer,
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -78,10 +70,9 @@ class _AchieveState extends State<AchievePage> {
                   child: new IconButton(
                     iconSize: Dimens.space_width_24,
                     icon: new Icon(
-                      IconData(0xe68e, fontFamily: Constant.IconFontFamily,),),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                      IconData(0xe68e, fontFamily: Constant.IconFontFamily,),
+                      color: Colors.white,),
+                    onPressed: () {},
                   ),
                 )
             ),
@@ -90,11 +81,38 @@ class _AchieveState extends State<AchievePage> {
                 child: new Container(
                   margin: EdgeInsets.only(
                       top: Dimens.ratio_height_5),
-                  child: new Text("战绩播报", style: TextStyles.pageTitle,),
+                  child: new Text(
+                    "战绩播报", style: TextStyle(fontSize: Dimens.font_space_20,
+                      color: Colors.white),),
                 )
             ),
           ],
         )
     );
   }
+
+  Container get buildContainer {
+    return new Container(
+      margin: EdgeInsets.only(top: Dimens.ratio_width_16),
+      child: new StreamBuilder(
+          stream: bloc.studentReportStream,
+          builder: (BuildContext context,
+              AsyncSnapshot<List<StudentGameReport>> snapshot) {
+            return new RefreshWrapper(
+              controller: _controller,
+              isLoading: snapshot.data == null,
+              itemExtent: Dimens.ratio_height_8,
+              onGetData: (up) {
+                _initData();
+              },
+              itemCount: snapshot.data == null ? 0 : snapshot.data.length,
+              itemBuilder: (context, index) =>
+              new AchieveReportItem(index, snapshot.data),
+            );
+          }
+      ),
+    );
+  }
+
+
 }

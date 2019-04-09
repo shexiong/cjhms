@@ -12,4 +12,6 @@ class Global{
   ///  获取当前用户信息并设为全局
   static CurrentUserDetail userDetail = CurrentUserDetail.fromJson({});
 
+
+
 }

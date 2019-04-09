@@ -17,7 +17,7 @@ class LoginRepository {
     BaseResp<Map<String, dynamic>> baseResp = await DioUtil.getInstance().request<Map<String, dynamic>>(
         Method.post, Api.USER_LOGIN,
         data: {Constant.LOGIN_ACCOUNT: account, Constant.PASSWORD: password},
-        options: DioUtil.changeBaseUrlOptions(false));
+        options: DioUtil.changeBaseUrlOptions(true));
 
     if (baseResp.code == Constant.STATUS_SUCCESS && baseResp.data.isNotEmpty) {
       return true;
@@ -78,6 +78,7 @@ class LoginRepository {
     return CurrentUserDetail.fromJson({});
   }
 
+  ///  刷新token
   Future<bool> refreshToken() async{
     BaseResp<Map<String, dynamic>> baseResp = await DioUtil.getInstance().request<Map<String, dynamic>>(
         Method.post, Api.REFRESH_TOKEN,
@@ -90,7 +91,17 @@ class LoginRepository {
     return false;
   }
 
+  ///  获取战绩播报数据，以确定是否在启动时需要进入战绩播报页面
+  Future<bool> getAchieveReportData() async{
+    BaseResp<List> baseResp = await DioUtil.getInstance().request<List>(
+        Method.get, Api.ACHIEVE_REPORT,
+        options: DioUtil.changeBaseUrlOptions(false));
 
+    if (baseResp.code == Constant.STATUS_SUCCESS && baseResp.total > 0) {
+      return true;
+    }
+    return false;
+  }
 
 
 

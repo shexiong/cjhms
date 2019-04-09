@@ -85,14 +85,14 @@ class ScreenUtil {
   setSp(int fontSize){
     if(pixelRatio <= 1.5){
       return fontSize * 1.1;
-    }else if(pixelRatio > 1.5){
-      return fontSize * 0.9;
-    }else if(pixelRatio > 2){
-      return fontSize * 0.7;
-    }else if(pixelRatio > 2.5){
-      return fontSize * 0.6;
-    }else if(pixelRatio > 3){
-      return fontSize * 0.5;
+    }else if(pixelRatio <= 2){
+      return fontSize * 0.80;
+    }else if(pixelRatio <= 2.5){
+      return fontSize * 0.70;
+    }else if(pixelRatio <= 3){
+      return fontSize * 0.55;
+    }else{
+      return fontSize * 0.45;
     }
   }
 }

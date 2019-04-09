@@ -28,5 +28,8 @@ class Api {
   ///  获取首页比赛报告(战绩播报数据)
   static const String ACHIEVE_REPORT = "app/api/game/report";
 
+  ///  获取战绩播报详情
+  static const String ACHIEVE_REPORT_DETAIL = "app/api/game/student/detail/";
+
 
 }

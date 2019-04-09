@@ -187,11 +187,8 @@ class DioUtil {
 
   /// decode response data.
   Map<String, dynamic> _decodeData(Response response) {
-    if (response == null ||
-        response.data == null ||
-        response.data
-            .toString()
-            .isEmpty) {
+    if (response == null || response.data == null ||
+        response.data.toString().isEmpty) {
       return new Map();
     }
     return json.decode(response.data.toString());

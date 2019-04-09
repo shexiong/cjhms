@@ -1,4 +1,7 @@
+
 import 'package:cjhms/common/constant.dart';
+import 'package:cjhms/component/achieve/bloc/bloc_achieve.dart';
+import 'package:cjhms/component/achieve/ui/router_achieve_page.dart';
 import 'package:cjhms/component/base/bloc_provider.dart';
 import 'package:cjhms/component/login/bloc/bloc_login.dart';
 import 'package:cjhms/component/login/entity/current_user_detail.dart';
@@ -29,15 +32,18 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   ///  是否登录过
   bool loggedIn = false;
+  ///  是否显示战绩播报页面
+  bool showAchieve = false;
+  ///  是否已跳转
+  bool isTranslate = false;
 
   @override
   void initState() {
     super.initState();
     _initDio();
     getUserInfo();
-    var _duration = new Duration(seconds: 3);
-    //  延时3秒
-    new Future.delayed(_duration, go2NextPage);
+    //  延时5秒
+    new Future.delayed(new Duration(seconds: 5), go2NextPage);
   }
 
   ///  单例dio初始化
@@ -58,22 +64,33 @@ class _SplashPageState extends State<SplashPage> {
       // bloc异步请求拿当前用户
       LoginBloc bloc = BlocProvider.of<LoginBloc>(context);
       if(bloc != null){
-        await bloc.refreshToken(); // 刷新token
-        CurrentUserDetail userDetail =  await bloc.getCurrentUser();
-        if(userDetail != null){
-          Global.userDetail = userDetail;
-        }
+        // 刷新token
+        await bloc.refreshToken();
+        // 得到当前用户
+        // Global.userDetail =  await bloc.getCurrentUser();
+        // 得到战绩播报数据
+        showAchieve = await bloc.getAchieveReportData();
+        go2NextPage();
       }
     }
   }
 
+  ///  跳转下一页面
   void go2NextPage() {
+    if(isTranslate){return;}
+    isTranslate = true;
     //  在这里判断页面去向
     if (loggedIn) {
-      //  再判断
-      NavigatorUtil.pushPage(context, HomePage());
+      //  再判断是否去战绩播报
+      if(showAchieve){
+        NavigatorUtil.pushPage(context, new BlocProvider<AchieveBloc>(
+            child: AchievePage(),bloc: new AchieveBloc(),));
+      }else{
+        NavigatorUtil.pushPage(context, HomePage());
+      }
     } else {
-      NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(child: LoginPage(),bloc: new LoginBloc(),));
+      NavigatorUtil.pushPage(context, new BlocProvider<LoginBloc>(
+          child: LoginPage(),bloc: new LoginBloc(),));
     }
   }
 

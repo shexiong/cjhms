@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'response_achieve_report.dart';
+part of 'student_game_report.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -8,11 +8,11 @@ part of 'response_achieve_report.dart';
 
 StudentGameReport _$StudentGameReportFromJson(Map<String, dynamic> json) {
   return StudentGameReport(
-      json['classGameId'] as int,
+      json['classGameId'] as String,
       json['gameName'] as String,
       json['gameType'] as int,
       json['groupResult'] as int,
-      json['ranking'] as int);
+      json['ranking'] as num);
 }
 
 Map<String, dynamic> _$StudentGameReportToJson(StudentGameReport instance) =>

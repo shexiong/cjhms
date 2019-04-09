@@ -100,7 +100,11 @@ class LoginBloc implements BlocBase{
     return refresh;
   }
 
-
+  ///  刷新token
+  Future getAchieveReportData() async{
+    bool haveData = await repository.getAchieveReportData();
+    return haveData;
+  }
 
 
 

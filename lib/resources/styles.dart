@@ -52,4 +52,8 @@ class Gaps {
   static Widget verticalGap18 = new SizedBox(height: Dimens.space_height_18);
   static Widget verticalGap22 = new SizedBox(height: Dimens.space_height_22);
   static Widget verticalGap24 = new SizedBox(height: Dimens.space_height_24);
+  static Widget verticalGap36 = new SizedBox(height: Dimens.space_height_36);
+
+  ///  百分比
+  static Widget verticalGapPercent4 = new SizedBox(height: Dimens.ratio_height_4);
 }

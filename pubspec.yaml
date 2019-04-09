@@ -28,8 +28,6 @@ dependencies:
   pull_to_refresh: ^1.1.6
   # rx
   rxdart: ^0.18.1
-  # 提示dialog
-  tip_dialog: ^2.0.0
   # 吐司
   fluttertoast: ^2.1.1
   # json序列化
@@ -55,9 +53,15 @@ flutter:
     - assets/images/my_bg.png
     - assets/images/login_bg.png
     - assets/images/archieve_bg.png
+    - assets/images/achieve_report_no_group.png
+    - assets/images/achieve_report_fail.png
+    - assets/images/achieve_report_success.png
+    - assets/images/achieve_report_tied.png
 
   fonts:
     - family: appIconFonts
       fonts:
         - asset: assets/fonts/iconfont.ttf
-
+    - family: Roboto-BlackItalic
+      fonts:
+        - asset: assets/fonts/Roboto-BlackItalic.ttf

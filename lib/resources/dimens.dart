@@ -14,6 +14,7 @@ class Dimens {
   static double font_space_20 = ScreenUtil.getInstance().setSp(20);
   static double font_space_22 = ScreenUtil.getInstance().setSp(22);
   static double font_space_24 = ScreenUtil.getInstance().setSp(24);
+  static double font_space_48 = ScreenUtil.getInstance().setSp(48);
 
   ///  常规尺寸
   static double space_width_1 = ScreenUtil.getInstance().setWidth(1);
@@ -207,4 +208,6 @@ class Dimens {
   static double ratio_height_70 = ScreenUtil.screenHeightDp / 10 * 7;
   static double ratio_width_80 = ScreenUtil.screenWidthDp / 5 * 4;
   static double ratio_height_80 = ScreenUtil.screenHeightDp / 5 * 4;
+  static double ratio_width_88 = ScreenUtil.screenWidthDp / 100 * 88;
+  static double ratio_height_88 = ScreenUtil.screenHeightDp / 100 * 88;
 }
