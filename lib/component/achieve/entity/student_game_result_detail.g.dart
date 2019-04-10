@@ -18,7 +18,7 @@ StudentGameResultDetail _$StudentGameResultDetailFromJson(
           ?.toList(),
       json['gameScore'] as int,
       json['contributionScore'] as int,
-      json['ranking'] as double,
+      (json['ranking'] as num)?.toDouble(),
       json['noGroup'] as bool);
 }
 
@@ -31,15 +31,15 @@ Map<String, dynamic> _$StudentGameResultDetailToJson(
       'playerInfo': instance.playerInfo,
       'gameScore': instance.gameScore,
       'contributionScore': instance.contributionScore,
-      'ranking': instance.ranking,
-      'noGroup': instance.noGroup
+      'noGroup': instance.noGroup,
+      'ranking': instance.ranking
     };
 
 PlayerInfo _$PlayerInfoFromJson(Map<String, dynamic> json) {
   return PlayerInfo(
       json['userId'] as String,
       json['userName'] as String,
-      json['accuracy'] as double,
+      (json['accuracy'] as num)?.toDouble(),
       json['personResult'] as int,
       json['isOverdue'] as bool,
       json['rival'] == null
@@ -61,7 +61,7 @@ Rival _$RivalFromJson(Map<String, dynamic> json) {
   return Rival(
       json['userId'] as String,
       json['userName'] as String,
-      json['accuracy'] as double,
+      (json['accuracy'] as num)?.toDouble(),
       json['personResult'] as int,
       json['isOverdue'] as bool);
 }

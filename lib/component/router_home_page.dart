@@ -42,7 +42,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     titles = <String>['作业任务', '做题记录', '错题本', '我的'];
-    widgetList..add(MissionPage())..add(RecordPage())..add(ErrorPage())..add(MinePage());
+    widgetList..add(MissionPage())
+      ..add(RecordPage())
+      ..add(ErrorPage())
+      ..add(MinePage());
   }
 
   @override
