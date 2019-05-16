@@ -65,7 +65,7 @@ class _SplashPageState extends State<SplashPage> {
       LoginBloc bloc = BlocProvider.of<LoginBloc>(context);
       if(bloc != null){
         // 刷新token
-        await bloc.refreshToken();
+        loggedIn = await bloc.refreshToken();
         // 得到当前用户
         // Global.userDetail =  await bloc.getCurrentUser();
         // 得到战绩播报数据

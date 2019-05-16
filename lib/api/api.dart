@@ -31,5 +31,8 @@ class Api {
   ///  获取战绩播报详情
   static const String ACHIEVE_REPORT_DETAIL = "app/api/game/student/detail/";
 
+  ///  获取学生作业列表
+  static const String HOMEWORK_LIST_DATA = "app/api/student/homeworks/history";
+
 
 }

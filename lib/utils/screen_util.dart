@@ -83,16 +83,6 @@ class ScreenUtil {
 
   ///字体大小适配方法
   setSp(int fontSize){
-    if(pixelRatio <= 1.5){
-      return fontSize * 1.1;
-    }else if(pixelRatio <= 2){
-      return fontSize * 0.80;
-    }else if(pixelRatio <= 2.5){
-      return fontSize * 0.70;
-    }else if(pixelRatio <= 3){
-      return fontSize * 0.55;
-    }else{
-      return fontSize * 0.45;
-    }
+    return fontSize * textScaleFactory;
   }
 }

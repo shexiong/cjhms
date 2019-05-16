@@ -8,7 +8,6 @@ import 'package:cjhms/utils/cookies_util.dart';
 import 'package:cjhms/utils/global.dart';
 import 'package:dio/dio.dart';
 
-/// <BaseResp<T> 返回 status code msg data.
 class BaseResp<T> {
   int code;
   int total;
@@ -29,7 +28,6 @@ class BaseResp<T> {
   }
 }
 
-/// 请求方法.
 class Method {
   static final String get = "GET";
   static final String post = "POST";
@@ -41,7 +39,6 @@ class Method {
 
 ///Http配置.
 class HttpConfig {
-  /// constructor.
   HttpConfig({
     this.code,
     this.message,
@@ -49,40 +46,23 @@ class HttpConfig {
     this.options,
   });
 
-  /// BaseResp [int code]字段 key, 默认：code.
   String code;
-
-  /// BaseResp [String msg]字段 key, 默认：message.
   String message;
-
-  /// BaseResp [T data]字段 key, 默认：data.
   String data;
-
-  /// Options.
   Options options;
 }
 
 /// 单例 DioUtil.
 /// debug模式下可以打印请求日志. DioUtil.openDebug().
-/// dio详细使用请查看dio官网(https://github.com/flutterchina/dio).
 class DioUtil {
 
   static final DioUtil _singleton = DioUtil._init();
   static Dio _dio;
 
-  /// BaseResp [int code]字段 key, 默认：code.
   String _codeKey = "code";
-
-  /// BaseResp [String msg]字段 key, 默认：message.
   String _msgKey = "message";
-
-  /// BaseResp [T data]字段 key, 默认：data.
   String _dataKey = "data";
-
-  /// BaseResp [int total]字段 key, 默认：total.
   String _totalKey = "total";
-
-  /// Options.
   Options _options = getDefOptions();
 
   /// 是否是debug模式.
@@ -96,12 +76,10 @@ class DioUtil {
     _dio = new Dio(_options);
   }
 
-  /// 打开debug模式.
   static void openDebug() {
     _isDebug = true;
   }
 
-  /// set Config.
   void setConfig(HttpConfig config) {
     _codeKey = config.code ?? _codeKey;
     _msgKey = config.message ?? _msgKey;

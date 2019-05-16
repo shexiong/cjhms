@@ -24,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   List<String> titles = [];
   int _selectedIndex = 0;
   List<Widget> widgetList = List();
+  Map<int, String> indexMap = {0:'index_1',1:'index_2',2:'index_3',3:'index_4',};
 
   var icons = [
     IconData(0xe66f, fontFamily: Constant.IconFontFamily,),
@@ -42,18 +43,24 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     titles = <String>['作业任务', '做题记录', '错题本', '我的'];
-    widgetList..add(MissionPage())
-      ..add(RecordPage())
-      ..add(ErrorPage())
-      ..add(MinePage());
+    widgetList..add(MissionPage(pageKey: new PageStorageKey('MissionPage'),))
+      ..add(RecordPage(pageKey: new PageStorageKey('RecordPage'),))
+      ..add(ErrorPage(pageKey: new PageStorageKey('ErrorPage'),))
+      ..add(MinePage(pageKey: new PageStorageKey('MinePage'),));
   }
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> widgets = List();
+    indexMap.forEach((index, str) {
+      widgets.add(Offstage(offstage: _selectedIndex != index, child: widgetList[index],),);
+    });
     return new MaterialApp(
       home: new Scaffold(
         backgroundColor: Colors.grey,
-        body: widgetList[_selectedIndex],
+        body: Stack(
+          children: widgets,
+        ),
         bottomNavigationBar: BottomTabBar(
           items: <BottomTabBarItem>[
             BottomTabBarItem(icon: Icon(icons[0]), title: Text(titles[0])),
